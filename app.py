@@ -17,15 +17,20 @@ app.secret_key = uuid.uuid4().hex
 APP_PASSWORD = os.environ.get("APP_PASSWORD", "1234")
 
 BASE_DIR = Path(__file__).parent
-# On Vercel, /var/task is read-only — use /tmp for writable dirs, fall back to local in dev
-if os.environ.get("VERCEL"):
-    PROJECTS_DIR = Path("/tmp/projects")
-    OUTPUTS_DIR = Path("/tmp/outputs")
-else:
-    PROJECTS_DIR = BASE_DIR / "projects"
-    OUTPUTS_DIR = BASE_DIR / "outputs"
-PROJECTS_DIR.mkdir(exist_ok=True)
-OUTPUTS_DIR.mkdir(exist_ok=True)
+
+def _writable_dir(name: str) -> Path:
+    """Return a writable directory — try local first, fall back to /tmp."""
+    local = BASE_DIR / name
+    try:
+        local.mkdir(exist_ok=True)
+        return local
+    except OSError:
+        tmp = Path("/tmp") / name
+        tmp.mkdir(exist_ok=True)
+        return tmp
+
+PROJECTS_DIR = _writable_dir("projects")
+OUTPUTS_DIR = _writable_dir("outputs")
 
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY", ""))
 
