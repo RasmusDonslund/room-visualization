@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Room Visualizer</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app-shell">
+
+    <header class="topbar">
+      <div class="topbar-logo">
+        <div class="topbar-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+        Room Visualizer
+      </div>
+      <span class="topbar-badge">Internt værktøj</span>
+    </header>
+
+    <!-- PROJECT LIST -->
+    <main class="main-content" id="view-projects">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Projekter</h1>
+          <p>Visualiser ejendomme i nye stilarter</p>
+        </div>
+        <button class="btn btn-primary" onclick="openNewProjectModal()">Nyt projekt</button>
+      </div>
+      <div class="project-grid" id="project-grid"></div>
+    </main>
+
+    <!-- PROJECT DETAIL -->
+    <main class="main-content hidden" id="view-detail">
+      <div class="breadcrumb">
+        <a href="#" onclick="event.preventDefault(); showProjectList()">Projekter</a>
+        <span>›</span>
+        <span id="detail-breadcrumb-name"></span>
+      </div>
+
+      <div class="project-header">
+        <div class="project-header-info">
+          <h1 id="detail-title"></h1>
+          <p id="detail-address"></p>
+        </div>
+        <div class="project-header-actions">
+          <button class="btn btn-secondary btn-sm hidden" id="upload-btn" onclick="document.getElementById('upload-input').click()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Upload
+          </button>
+          <button class="btn btn-icon btn-ghost" onclick="deleteProject(currentProject.id)" title="Slet projekt">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="detail-tabs" id="detail-tabs">
+        <button class="detail-tab active" onclick="switchTab('edit')" id="tab-edit">Billeder</button>
+        <button class="detail-tab" onclick="switchTab('results')" id="tab-results">
+          Resultater <span class="tab-count hidden" id="tab-results-count">0</span>
+        </button>
+      </div>
+
+      <!-- TAB: Edit (billeder) -->
+      <div id="tab-panel-edit">
+        <div class="project-stats hidden" id="project-stats"></div>
+
+        <div class="upload-zone" id="upload-zone">
+          <div class="upload-zone-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <p>Træk billeder eller mapper hertil</p>
+          <div class="text-faint">JPG, PNG · <a href="#" id="upload-folder-link" onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('upload-folder-input').click()">Vælg mappe</a></div>
+          <input type="file" id="upload-input" multiple accept="image/*" style="display:none">
+          <input type="file" id="upload-folder-input" webkitdirectory multiple accept="image/*" style="display:none">
+        </div>
+
+        <div class="bulk-styles hidden" id="bulk-styles">
+          <span class="field-label" style="flex-shrink:0">Alle billeder</span>
+          <div class="bulk-styles-row">
+            <div class="style-chips" id="bulk-style-chips"></div>
+          </div>
+          <div style="flex-shrink:0;margin-left:auto;display:flex;gap:6px" id="bulk-actions"></div>
+        </div>
+
+        <div class="rooms-grid" id="rooms-grid"></div>
+      </div>
+
+      <!-- TAB: Results -->
+      <div id="tab-panel-results" class="hidden">
+        <div id="results-gallery"></div>
+      </div>
+    </main>
+
+    <!-- RESULT VIEW -->
+    <div class="result-view" id="result-view">
+      <div class="result-topbar">
+        <h3 id="result-room-title"></h3>
+        <button class="btn btn-ghost btn-sm" onclick="closeResultView()">Luk</button>
+      </div>
+      <div class="result-tabs" id="result-tabs"></div>
+      <div class="result-body">
+        <div class="result-pane">
+          <div class="result-pane-label">Original</div>
+          <img id="result-original" src="" alt="Original">
+        </div>
+        <div class="result-pane">
+          <div class="result-pane-label">Genereret</div>
+          <img id="result-generated" src="" alt="Genereret">
+        </div>
+      </div>
+      <div class="result-actions">
+        <button class="btn btn-primary btn-sm" id="result-download">Download</button>
+      </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modal-new-project">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>Nyt projekt</h2>
+          <button class="btn btn-icon btn-ghost" onclick="closeNewProjectModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="input-project-name">Projektnavn</label>
+            <input class="input" type="text" id="input-project-name" placeholder="f.eks. Strandvejen 42">
+          </div>
+          <div class="form-group">
+            <label for="input-project-address">Adresse</label>
+            <input class="input" type="text" id="input-project-address" placeholder="f.eks. Strandvejen 42, 2900 Hellerup">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="closeNewProjectModal()">Annuller</button>
+          <button class="btn btn-primary" onclick="createProject()">Opret</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky generate bar -->
+    <div class="sticky-bar hidden" id="sticky-bar">
+      <div class="sticky-bar-inner">
+        <span class="sticky-bar-text" id="sticky-bar-text"></span>
+        <button class="btn btn-primary btn-sm" onclick="generateAll()" id="sticky-bar-btn">Generer</button>
+      </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="custom-tooltip" id="custom-tooltip"></div>
+
+    <div class="toast-container" id="toast-container"></div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

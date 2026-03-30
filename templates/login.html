@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Room Visualizer — Login</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-page);
+    }
+    .login-card {
+      background: var(--bg-elevated);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-elevated);
+      padding: 40px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
+    .login-card h1 {
+      font-size: 21px;
+      margin-bottom: 4px;
+    }
+    .login-card p {
+      font-size: 14px;
+      color: var(--text-tertiary);
+      margin-bottom: 28px;
+    }
+    .login-card .input {
+      text-align: center;
+      font-size: 18px;
+      letter-spacing: 0.15em;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+    }
+    .login-error {
+      font-size: 13px;
+      color: var(--red);
+      margin-bottom: 12px;
+    }
+    .login-mark {
+      width: 40px;
+      height: 40px;
+      background: var(--text);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .login-mark svg {
+      width: 22px;
+      height: 22px;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-page">
+    <form class="login-card" method="POST" action="/login">
+      <div class="login-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </div>
+      <h1>Room Visualizer</h1>
+      <p>Indtast kodeord for at fortsætte</p>
+      {% if error %}<div class="login-error">{{ error }}</div>{% endif %}
+      <input class="input" type="password" name="password" placeholder="Kodeord" autofocus>
+      <button class="btn btn-primary" type="submit" style="width:100%;justify-content:center;padding:10px">Log ind</button>
+    </form>
+  </div>
+</body>
+</html>
