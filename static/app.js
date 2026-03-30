@@ -790,11 +790,9 @@ async function generateAll() {
   let tempCount = 0;
   for (const room of currentProject.rooms) {
     for (const s of (room.selected_styles || [])) {
-      if (!(s in (room.generated || {}))) {
-        const tempId = `temp_${room.id}_${s}`;
-        activeJobs[tempId] = { room_id: room.id, style: s, status: 'generating' };
-        tempCount++;
-      }
+      const tempId = `temp_${room.id}_${s}`;
+      activeJobs[tempId] = { room_id: room.id, style: s, status: 'generating' };
+      tempCount++;
     }
   }
 

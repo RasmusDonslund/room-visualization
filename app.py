@@ -460,9 +460,6 @@ def generate_all(project_id):
         for style_key in styles:
             if style_key not in STYLES:
                 continue
-            # Skip already generated
-            if style_key in room.get("generated", {}):
-                continue
             job_id = uuid.uuid4().hex[:12]
             jobs[job_id] = {"status": "generating", "room_id": room["id"], "style": style_key, "result": None, "error": None}
             t = threading.Thread(target=_run_generation, args=(job_id, project_id, room["id"], style_key), daemon=True)
