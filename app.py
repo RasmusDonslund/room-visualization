@@ -32,7 +32,13 @@ def _writable_dir(name: str) -> Path:
 PROJECTS_DIR = _writable_dir("projects")
 OUTPUTS_DIR = _writable_dir("outputs")
 
-client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY", ""))
+def _get_client():
+    key = os.environ.get("GEMINI_API_KEY", "")
+    if not key:
+        return None
+    return genai.Client(api_key=key)
+
+client = _get_client()
 
 # ---------------------------------------------------------------------------
 # Styles & room types
